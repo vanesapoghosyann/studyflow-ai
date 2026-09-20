@@ -9,6 +9,7 @@ function Subjects() {
   );
 
   const [name, setName] = useState("");
+  const [progress, setProgress] = useState(0);
 
   function addSubject(e) {
     e.preventDefault();
@@ -17,17 +18,34 @@ function Subjects() {
 
     const newSubject = {
       id: Date.now(),
-      name,
-      progress: 0,
+      name: name.trim(),
+      progress: Number(progress),
     };
 
     setSubjects([...subjects, newSubject]);
+
     setName("");
+    setProgress(0);
+  }
+
+  function deleteSubject(id) {
+    setSubjects(subjects.filter((subject) => subject.id !== id));
+  }
+
+  function updateProgress(id, newProgress) {
+    setSubjects(
+      subjects.map((subject) =>
+        subject.id === id
+          ? { ...subject, progress: Number(newProgress) }
+          : subject
+      )
+    );
   }
 
   return (
     <section>
       <div className="page-header">
+        <p className="eyebrow">YOUR LEARNING</p>
         <h1>Subjects</h1>
         <p>Organize the areas you are currently studying.</p>
       </div>
@@ -35,9 +53,18 @@ function Subjects() {
       <form onSubmit={addSubject} className="form">
         <input
           type="text"
-          placeholder="New subject..."
+          placeholder="Subject name..."
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+
+        <input
+          type="number"
+          min="0"
+          max="100"
+          placeholder="Progress %"
+          value={progress}
+          onChange={(e) => setProgress(e.target.value)}
         />
 
         <button type="submit">Add Subject</button>
@@ -49,12 +76,24 @@ function Subjects() {
             <h3>{subject.name}</h3>
 
             <div className="progress-bar">
-              <div
-                style={{ width: `${subject.progress}%` }}
-              />
+              <div style={{ width: `${subject.progress}%` }} />
             </div>
 
             <span>{subject.progress}% completed</span>
+
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={subject.progress}
+              onChange={(e) =>
+                updateProgress(subject.id, e.target.value)
+              }
+            />
+
+            <button onClick={() => deleteSubject(subject.id)}>
+              Delete
+            </button>
           </article>
         ))}
       </div>

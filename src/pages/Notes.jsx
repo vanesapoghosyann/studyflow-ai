@@ -9,13 +9,35 @@ function Notes() {
   );
 
   const [search, setSearch] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [subject, setSubject] = useState("");
+
+  function addNote(e) {
+    e.preventDefault();
+
+    if (!title.trim() || !content.trim()) return;
+
+    const newNote = {
+      id: Date.now(),
+      title: title.trim(),
+      content: content.trim(),
+      subject: subject.trim() || "General",
+    };
+
+    setNotes([...notes, newNote]);
+
+    setTitle("");
+    setContent("");
+    setSubject("");
+  }
 
   function deleteNote(id) {
     setNotes(notes.filter((note) => note.id !== id));
   }
 
   const filteredNotes = notes.filter((note) =>
-    `${note.title} ${note.content}`
+    `${note.title} ${note.content} ${note.subject}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -23,9 +45,34 @@ function Notes() {
   return (
     <section>
       <div className="page-header">
+        <p className="eyebrow">YOUR KNOWLEDGE BASE</p>
         <h1>Notes</h1>
-        <p>Your personal learning knowledge base.</p>
+        <p>Keep your learning materials organized in one place.</p>
       </div>
+
+      <form onSubmit={addNote} className="note-form">
+        <input
+          type="text"
+          placeholder="Note title..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Subject..."
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+
+        <textarea
+          placeholder="Write your note..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+
+        <button type="submit">Add Note</button>
+      </form>
 
       <input
         className="search"

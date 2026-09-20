@@ -1,30 +1,56 @@
-import { initialSubjects, initialTasks } from "../data/initialData";
+import useLocalStorage from "../hooks/useLocalStorage";
+import {
+  initialSubjects,
+  initialTasks,
+  initialNotes,
+} from "../data/initialData";
 
 function Dashboard() {
-  const completedTasks = initialTasks.filter(
+  const [subjects] = useLocalStorage(
+    "studyflow-subjects",
+    initialSubjects
+  );
+
+  const [tasks] = useLocalStorage(
+    "studyflow-tasks",
+    initialTasks
+  );
+
+  const [notes] = useLocalStorage(
+    "studyflow-notes",
+    initialNotes
+  );
+
+  const completedTasks = tasks.filter(
     (task) => task.completed
   ).length;
 
   const averageProgress =
-    initialSubjects.reduce(
-      (total, subject) => total + subject.progress,
-      0
-    ) / initialSubjects.length;
+    subjects.length > 0
+      ? subjects.reduce(
+          (total, subject) => total + subject.progress,
+          0
+        ) / subjects.length
+      : 0;
+
+  const recentTasks = tasks.slice(0, 5);
 
   return (
     <section>
       <div className="page-header">
-        <div>
-          <p className="eyebrow">WELCOME BACK</p>
-          <h1>Your Study Dashboard</h1>
-          <p>Keep learning, stay organized and make progress.</p>
-        </div>
+        <p className="eyebrow">WELCOME BACK</p>
+
+        <h1>Your Study Dashboard</h1>
+
+        <p>
+          Keep learning, stay organized and make progress.
+        </p>
       </div>
 
       <div className="stats-grid">
         <div className="stat-card">
           <span>Subjects</span>
-          <strong>{initialSubjects.length}</strong>
+          <strong>{subjects.length}</strong>
         </div>
 
         <div className="stat-card">
@@ -36,23 +62,35 @@ function Dashboard() {
           <span>Average Progress</span>
           <strong>{Math.round(averageProgress)}%</strong>
         </div>
+
+        <div className="stat-card">
+          <span>Notes</span>
+          <strong>{notes.length}</strong>
+        </div>
       </div>
 
       <div className="dashboard-section">
-        <h2>Today's Tasks</h2>
+        <h2>Recent Tasks</h2>
 
-        {initialTasks.map((task) => (
-          <div className="task-preview" key={task.id}>
-            <span>
-              {task.completed ? "✓" : "○"}
-            </span>
+        {recentTasks.length === 0 ? (
+          <p>No tasks yet.</p>
+        ) : (
+          recentTasks.map((task) => (
+            <div className="task-preview" key={task.id}>
+              <span>{task.completed ? "✓" : "○"}</span>
 
-            <div>
-              <strong>{task.title}</strong>
-              <small>{task.subject}</small>
+              <div>
+                <strong
+                  className={task.completed ? "completed" : ""}
+                >
+                  {task.title}
+                </strong>
+
+                <small>{task.subject}</small>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </section>
   );

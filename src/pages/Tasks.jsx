@@ -1,3 +1,4 @@
+import { useState } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { initialTasks } from "../data/initialData";
 
@@ -6,6 +7,27 @@ function Tasks() {
     "studyflow-tasks",
     initialTasks
   );
+
+  const [title, setTitle] = useState("");
+  const [subject, setSubject] = useState("");
+
+  function addTask(e) {
+    e.preventDefault();
+
+    if (!title.trim()) return;
+
+    const newTask = {
+      id: Date.now(),
+      title: title.trim(),
+      subject: subject.trim() || "General",
+      completed: false,
+    };
+
+    setTasks([...tasks, newTask]);
+
+    setTitle("");
+    setSubject("");
+  }
 
   function toggleTask(id) {
     setTasks(
@@ -21,12 +43,35 @@ function Tasks() {
     setTasks(tasks.filter((task) => task.id !== id));
   }
 
+  const completedTasks = tasks.filter((task) => task.completed).length;
+
   return (
     <section>
       <div className="page-header">
+        <p className="eyebrow">STAY ORGANIZED</p>
         <h1>Tasks</h1>
-        <p>Track the things you need to accomplish.</p>
+        <p>
+          {completedTasks} of {tasks.length} tasks completed.
+        </p>
       </div>
+
+      <form onSubmit={addTask} className="form">
+        <input
+          type="text"
+          placeholder="What do you need to do?"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Subject..."
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+
+        <button type="submit">Add Task</button>
+      </form>
 
       <div className="task-list">
         {tasks.map((task) => (
@@ -38,9 +83,7 @@ function Tasks() {
             />
 
             <div>
-              <strong
-                className={task.completed ? "completed" : ""}
-              >
+              <strong className={task.completed ? "completed" : ""}>
                 {task.title}
               </strong>
 
